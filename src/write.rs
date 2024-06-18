@@ -1,9 +1,9 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Error, ErrorKind, Write};
-use std::sync::{Arc, Mutex};
+use std::sync::mpsc::Receiver;
 
-pub fn write_loop(outfile: &str, quit: Arc<Mutex<bool>>) -> Result<(), Error> {
+pub fn write_loop(outfile: &str, write_rx: Receiver<Vec<u8>>) -> Result<(), Error> {
     let mut writer: Box<dyn Write> = if !outfile.is_empty() {
         Box::new(BufWriter::new(File::create(outfile)?))
     } else {
@@ -11,12 +11,9 @@ pub fn write_loop(outfile: &str, quit: Arc<Mutex<bool>>) -> Result<(), Error> {
     };
 
     loop {
-        let buffer: Vec<u8> = Vec::new();
-        {
-            let quit = quit.lock().unwrap();
-            if *quit {
-                break;
-            }
+        let buffer = write_rx.recv().unwrap();
+        if buffer.is_empty() {
+            break;
         }
         match writer.write_all(&buffer) {
             Ok(_) => {}
