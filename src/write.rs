@@ -1,22 +1,33 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Error, ErrorKind, Write};
+use std::sync::{Arc, Mutex};
 
-pub fn write(outfile: &str, buffer: &[u8]) -> Result<bool, Error> {
+
+pub fn write_loop(outfile: &str, quit: Arc<Mutex<bool>>) -> Result<(), Error> {
     let mut writer: Box<dyn Write> = if !outfile.is_empty() {
         Box::new(BufWriter::new(File::create(outfile)?))
     } else {
         Box::new(io::stdout())
     };
 
-    match writer.write_all(buffer) {
-        Ok(_) => {}
-        Err(e) => {
-            if e.kind() == ErrorKind::BrokenPipe {
-                return Ok(false);
+    loop {
+        let buffer : Vec<u8> = Vec::new();
+        {
+            let quit = quit.lock().unwrap();
+            if *quit {
+                break;
             }
-            return Err(e);
+        }
+        match writer.write_all(&buffer) {
+            Ok(_) => {}
+            Err(e) => {
+                if e.kind() == ErrorKind::BrokenPipe {
+                    return Ok(());
+                }
+                return Err(e);
+            }
         }
     }
-    Ok(true)
+    Ok(())
 }
