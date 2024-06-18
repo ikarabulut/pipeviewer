@@ -67,3 +67,21 @@ impl TimeOutput for u64 {
         format!("{}:{:02}:{:02}", hours, min, sec)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::TimeOutput;
+
+    #[test]
+    fn as_time_output() {
+        let pairs = vec![
+            (5_u64, "0:00:05"),
+            (60_u64, "0:01:00"),
+            (154_u64, "0:02:34"),
+            (3606_u64, "1:00:06"),
+        ];
+        for (input, output) in pairs {
+            assert_eq!(input.as_time().as_str(), output);
+        }
+    }
+}
