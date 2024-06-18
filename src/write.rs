@@ -3,7 +3,6 @@ use std::io;
 use std::io::{BufWriter, Error, ErrorKind, Write};
 use std::sync::{Arc, Mutex};
 
-
 pub fn write_loop(outfile: &str, quit: Arc<Mutex<bool>>) -> Result<(), Error> {
     let mut writer: Box<dyn Write> = if !outfile.is_empty() {
         Box::new(BufWriter::new(File::create(outfile)?))
@@ -12,7 +11,7 @@ pub fn write_loop(outfile: &str, quit: Arc<Mutex<bool>>) -> Result<(), Error> {
     };
 
     loop {
-        let buffer : Vec<u8> = Vec::new();
+        let buffer: Vec<u8> = Vec::new();
         {
             let quit = quit.lock().unwrap();
             if *quit {

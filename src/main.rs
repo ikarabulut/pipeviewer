@@ -1,7 +1,7 @@
 use pipeviewer::{args::Args, read, stats, write};
 use std::io::Result;
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
 fn main() -> Result<()> {
     let args = Args::parse();
